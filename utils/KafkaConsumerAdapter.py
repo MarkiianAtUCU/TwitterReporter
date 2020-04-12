@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from utils import n_max_messsages, most_popular_hashtags, time_array, aggregate_statistics
+from utils.utils import n_max_messsages, most_popular_hashtags, time_array, aggregate_statistics
 from kafka import KafkaConsumer, TopicPartition
 import json
 
@@ -34,7 +34,13 @@ class KafkaConsumerAdapter:
         first_twit_time = datetime.now() - timedelta(hours=n_hours)
         first_offset = self.consumer_twits.offsets_for_times(
             {self.tweets_partition: int(datetime.timestamp(first_twit_time) * 1000)}
-        )[self.tweets_partition].offset - 1
+        )[self.tweets_partition]
+
+        if first_offset is None:
+            return dict()
+        else:
+            first_offset = first_offset.offset - 1
+
         last_offset = self.consumer_twits.end_offsets([self.tweets_partition])[self.tweets_partition] - 1
 
         self.consumer_twits.seek(self.tweets_partition, first_offset)
@@ -54,7 +60,12 @@ class KafkaConsumerAdapter:
     def _fetch_all_messages_from_to(self, first_twit_time, last_twit_time):
         first_offset = self.consumer_twits.offsets_for_times(
             {self.tweets_partition: int(datetime.timestamp(first_twit_time) * 1000)}
-        )[self.tweets_partition].offset - 1
+        )[self.tweets_partition]
+
+        if first_offset is None:
+            return dict()
+        else:
+            first_offset = first_offset.offset - 1
 
         last_offset = self.consumer_twits.offsets_for_times(
             {self.tweets_partition: int(datetime.timestamp(last_twit_time) * 1000)}

@@ -3,11 +3,13 @@ from kafka import KafkaProducer
 import pandas as pd
 from datetime import datetime, timedelta
 
+import config
+
 df = pd.read_csv("data/twcs.csv", chunksize=5000)
 
-producer_twits = KafkaProducer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'],
+producer_twits = KafkaProducer(bootstrap_servers=config.BOOTSTRAP_SERVERS,
                                value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-producer_users = KafkaProducer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'],
+producer_users = KafkaProducer(bootstrap_servers=config.BOOTSTRAP_SERVERS,
                                value_serializer=lambda v: v.encode('utf-8'))
 
 tracked_users = set()
